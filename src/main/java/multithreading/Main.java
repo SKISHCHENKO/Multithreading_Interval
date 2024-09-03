@@ -10,8 +10,8 @@ public class Main {
         for (int i = 0; i < texts.length; i++) {
             texts[i] = generateText("aab", 30_000);
         }
-
-        ExecutorService executor = Executors.newFixedThreadPool(25);
+        int maxThreads = 25;
+        ExecutorService executor = Executors.newFixedThreadPool(maxThreads);
         List<Future<Integer>> futures = new ArrayList<>();
 
         long startTs = System.currentTimeMillis(); // start time
@@ -43,10 +43,15 @@ public class Main {
             futures.add(future);
         }
 
+        int globalMaxSize = 0;
         for (int i = 0; i < texts.length; i++) {
             Integer maxSize = futures.get(i).get();
+            if (maxSize > globalMaxSize) {
+                globalMaxSize = maxSize;
+            }
             System.out.println(texts[i].substring(0, 100) + " -> " + maxSize);
         }
+        System.out.println(" Максимум среди всех строк -> " + globalMaxSize);
 
         executor.shutdown();
         long endTs = System.currentTimeMillis(); // end time
