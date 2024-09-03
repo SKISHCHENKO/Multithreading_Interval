@@ -9,7 +9,7 @@ public class Main {
         for (int i = 0; i < texts.length; i++) {
             texts[i] = generateText("aab", 30_000);
         }
-
+        // пул потоков
         long startTs = System.currentTimeMillis(); // start time
         List<Thread> threads = new ArrayList<>();
 
