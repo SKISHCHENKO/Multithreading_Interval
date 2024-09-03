@@ -11,7 +11,7 @@ public class Main {
             texts[i] = generateText("aab", 30_000);
         }
 
-        ExecutorService executor = Executors.newFixedThreadPool(4);
+        ExecutorService executor = Executors.newFixedThreadPool(25);
         List<Future<Integer>> futures = new ArrayList<>();
 
         long startTs = System.currentTimeMillis(); // start time
