@@ -1,20 +1,23 @@
 package multithreading;
 
 import java.util.*;
+import java.util.concurrent.*;
 
 public class Main {
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException, ExecutionException {
         String[] texts = new String[25];
         for (int i = 0; i < texts.length; i++) {
             texts[i] = generateText("aab", 30_000);
         }
-        // пул потоков
+
+        ExecutorService executor = Executors.newFixedThreadPool(4);
+        List<Future<Integer>> futures = new ArrayList<>();
+
         long startTs = System.currentTimeMillis(); // start time
-        List<Thread> threads = new ArrayList<>();
 
         for (String text : texts) {
-            Runnable logic = () -> {
+            Callable<Integer> task = () -> {
                 int maxSize = 0;
                 for (int i = 0; i < text.length(); i++) {
                     for (int j = 0; j < text.length(); j++) {
@@ -33,19 +36,21 @@ public class Main {
                         }
                     }
                 }
-                System.out.println(text.substring(0, 100) + " -> " + maxSize);
+                return maxSize;
             };
-            Thread thread = new Thread(logic);
-            threads.add(thread);
-            thread.start();
-        }
-        for (Thread thread : threads) {
-            thread.join(); // зависаем, ждём когда поток объект которого лежит в thread завершится
+
+            Future<Integer> future = executor.submit(task);
+            futures.add(future);
         }
 
+        for (int i = 0; i < texts.length; i++) {
+            Integer maxSize = futures.get(i).get();
+            System.out.println(texts[i].substring(0, 100) + " -> " + maxSize);
+        }
+
+        executor.shutdown();
         long endTs = System.currentTimeMillis(); // end time
         System.out.println("Time: " + (endTs - startTs) + "ms");
-
     }
 
     public static String generateText(String letters, int length) {
